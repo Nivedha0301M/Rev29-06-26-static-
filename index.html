@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"Amit Shah holds charge of both the Ministry of Home Affairs and the Ministry of Co-operation. Which combination correctly identifies these portfolios?", options:["Home Affairs and Co-operation","Home Affairs and Parliamentary Affairs","Co-operation and Agriculture & Farmers' Welfare","Home Affairs and Personnel, Public Grievances and Pensions"], answer:0},
+
+{q:"Annpurna Devi is associated with the Ministry of Women and Child Development. Which of the following correctly identifies her portfolio?", options:["Women and Child Development","Social Justice and Empowerment","Tribal Affairs","Health and Family Welfare"], answer:0},
+
+{q:"Arjun Ram Meghwal is a Union Minister of State with Independent Charge. Which ministry is assigned to him according to the given list?", options:["Parliamentary Affairs","Law and Justice","Minority Affairs","Statistics and Programme Implementation"], answer:1},
+
+{q:"Ashwini Vaishnaw holds multiple important portfolios in the Union Government. Which combination correctly identifies all three ministries assigned to him?", options:["Railways, Communications and Information & Broadcasting","Railways, Electronics and Information Technology, and Information & Broadcasting","Communications, Civil Aviation and Railways","Electronics and Information Technology, Communications and Science and Technology"], answer:1},
+
+{q:"Bhupender Yadav is the Union Minister in charge of which ministry related to environmental protection, forests and climate policy?", options:["Ministry of Jal Shakti","Ministry of Environment, Forests and Climate Change","Ministry of Agriculture and Farmers' Welfare","Ministry of Rural Development"], answer:1},
+
+{q:"C. R. Patil is associated with a ministry that deals with water resources and related national programmes. Which ministry does he head according to the given information?", options:["Ministry of Jal Shakti","Ministry of Environment, Forests and Climate Change","Ministry of Rural Development","Ministry of Agriculture and Farmers' Welfare"], answer:0},
+
+{q:"Chirag Paswan has been assigned a portfolio connected with the processing and value addition of agricultural and food products. Which ministry is this?", options:["Ministry of Consumer Affairs, Food and Public Distribution","Ministry of Food Processing Industries","Ministry of Agriculture and Farmers' Welfare","Ministry of Commerce and Industry"], answer:1},
+
+{q:"Dr. Jitendra Singh handles several portfolios, including Earth Sciences, Personnel, Public Grievances and Pensions, and Science and Technology. Which of the following is NOT assigned to him?", options:["Earth Sciences","Science and Technology","Personnel, Public Grievances and Pensions","Skill Development and Entrepreneurship"], answer:3},
+
+{q:"G. Kishan Reddy has been assigned two ministries dealing with mineral resources and energy resources. Which combination is correct?", options:["Coal and Mines","Mines and Steel","Coal and Heavy Industries","Steel and Petroleum and Natural Gas"], answer:0},
+
+{q:"Gajendra Singh Shekhawat is responsible for two portfolios associated with India's cultural heritage and tourism sector. Which combination is correct?", options:["Culture and Tourism","Culture and Textiles","Tourism and Civil Aviation","Tourism and Parliamentary Affairs"], answer:0},
+
+{q:"H. D. Kumaraswamy holds charge of ministries connected with industrial manufacturing and the steel sector. Which combination correctly identifies his portfolios?", options:["Heavy Industries and Steel","Heavy Industries and Mines","Steel and Commerce and Industry","Heavy Industries and Railways"], answer:0},
+
+{q:"Hardeep Singh Puri is assigned a ministry that plays a major role in India's energy sector, particularly petroleum products and natural gas. Which ministry is it?", options:["Ministry of Coal","Ministry of Petroleum and Natural Gas","Ministry of Power","Ministry of New and Renewable Energy"], answer:1},
+
+{q:"J. P. Nadda holds charge of both the Ministry of Chemicals and Fertilizers and which other ministry according to the given list?", options:["Ministry of Health and Family Welfare","Ministry of Environment, Forests and Climate Change","Ministry of Consumer Affairs, Food and Public Distribution","Ministry of AYUSH"], answer:0},
+
+{q:"Jayant Chaudhary is associated with a ministry focused on developing employable skills and promoting entrepreneurship. Which ministry is assigned to him?", options:["Ministry of Micro, Small and Medium Enterprises","Ministry of Skill Development and Entrepreneurship","Ministry of Labour and Employment","Ministry of Youth Affairs and Sports"], answer:1},
+
+{q:"Jitan Ram Manjhi is the Union Minister responsible for the Ministry of Micro, Small and Medium Enterprises (MSME). Which sector does this portfolio primarily represent in the given list?", options:["Large-scale heavy industries","Micro, Small and Medium Enterprises","Public sector banking and finance","Agricultural exports and food processing"], answer:1},
+
+{q:"Jyotiraditya Scindia holds two Union portfolios, one dealing with telecommunications and another focusing on India's northeastern region. Which combination is correct?", options:["Communications and Development of North Eastern Region","Communications and Civil Aviation","Civil Aviation and Development of North Eastern Region","Information and Broadcasting and Communications"], answer:0},
+
+{q:"Kinjarapu Ram Mohan Naidu is responsible for a ministry dealing specifically with the aviation sector. Which ministry is assigned to him?", options:["Ministry of Railways","Ministry of Civil Aviation","Ministry of Ports, Shipping and Waterways","Ministry of Road Transport and Highways"], answer:1},
+
+{q:"Kiren Rijiju holds two portfolios, including one dealing with the welfare of minority communities and another connected with the functioning of Parliament. Which combination is correct?", options:["Minority Affairs and Parliamentary Affairs","Minority Affairs and Law and Justice","Parliamentary Affairs and Social Justice and Empowerment","Minority Affairs and Home Affairs"], answer:0},
+
+{q:"Manohar Lal Khattar is assigned two important ministries dealing with urban development and the power sector. Which combination correctly identifies them?", options:["Housing and Urban Affairs and Power","Power and Coal","Housing and Urban Affairs and Petroleum and Natural Gas","Power and New and Renewable Energy"], answer:0},
+
+{q:"Mansukh Mandaviya holds portfolios related to employment as well as sports and youth development. Which combination correctly identifies his ministries?", options:["Labour and Employment and Youth Affairs and Sports","Youth Affairs and Sports and Skill Development and Entrepreneurship","Labour and Employment and Social Justice and Empowerment","Health and Family Welfare and Youth Affairs and Sports"], answer:0},
+
+{q:"Nirmala Sitharaman holds two major economic portfolios in the Union Government. Which combination correctly identifies them?", options:["Finance and Commerce and Industry","Finance and Corporate Affairs","Corporate Affairs and Law and Justice","Finance and Statistics and Programme Implementation"], answer:1},
+
+{q:"Nitin Gadkari is responsible for the ministry dealing with India's national road transport and highway infrastructure. Which ministry is assigned to him?", options:["Ministry of Railways","Ministry of Road Transport and Highways","Ministry of Ports, Shipping and Waterways","Ministry of Civil Aviation"], answer:1},
+
+{q:"Piyush Goyal is associated with the ministry responsible for India's trade and industrial policy. Which ministry does he head according to the given information?", options:["Ministry of Commerce and Industry","Ministry of Heavy Industries","Ministry of Finance","Ministry of Corporate Affairs"], answer:0},
+
+{q:"Pralhad Joshi holds three Union portfolios, including Consumer Affairs, Food and Public Distribution, Education and New and Renewable Energy. Which of the following correctly identifies all three?", options:["Consumer Affairs, Food and Public Distribution; Education; New and Renewable Energy","Consumer Affairs, Food and Public Distribution; Power; Education","Education; Skill Development and Entrepreneurship; New and Renewable Energy","Consumer Affairs, Food and Public Distribution; Agriculture and Farmers' Welfare; Education"], answer:0},
+
+{q:"Rajnath Singh is associated with the ministry responsible for India's national defence administration. Which portfolio is assigned to him?", options:["Ministry of Home Affairs","Ministry of Defence","Ministry of External Affairs","Ministry of Parliamentary Affairs"], answer:1},
+
+{q:"Rao Inderjit Singh holds Independent Charge of two portfolios, one related to national planning and another to official statistics and programme implementation. Which combination is correct?", options:["Planning and Statistics and Programme Implementation","Planning and Finance","Statistics and Programme Implementation and Corporate Affairs","Planning and Commerce and Industry"], answer:0},
+
+{q:"S. Jaishankar is the Union Minister responsible for India's diplomatic relations and external affairs. Which ministry is assigned to him?", options:["Ministry of Parliamentary Affairs","Ministry of External Affairs","Ministry of Home Affairs","Ministry of Commerce and Industry"], answer:1},
+
+{q:"Sarbananda Sonowal is associated with a ministry covering ports, shipping and inland waterways. Which ministry is this?", options:["Ministry of Ports, Shipping and Waterways","Ministry of Road Transport and Highways","Ministry of Civil Aviation","Ministry of Jal Shakti"], answer:0},
+
+{q:"Which of the following correctly matches the Union Minister with his/her portfolio from the given list?", options:["Shivraj Singh Chouhan – Agriculture and Farmers' Welfare and Rural Development","Virendra Kumar Khatik – Animal Husbandry, Dairying and Fisheries","Rajiv Ranjan (Lalan Singh) – Social Justice and Empowerment","Jual Oram – Rural Development and Tribal Affairs"], answer:0},
+
+{q:"Rajiv Ranjan (Lalan Singh) holds two Union portfolios dealing with livestock-related activities and grassroots local governance. Which combination correctly identifies them?", options:["Animal Husbandry, Dairying and Fisheries and Panchayati Raj","Agriculture and Farmers' Welfare and Panchayati Raj","Animal Husbandry, Dairying and Fisheries and Rural Development","Panchayati Raj and Tribal Affairs"], answer:0},
+
+{q:"According to the Andhra Pradesh state profile, which combination correctly identifies the capital, formation date, Chief Minister (CM) and major river of the state?", options:["Amaravati – 1 November 1956 – Chandrababu Naidu – Godavari","Amaravati – 1 November 1956 – Abdul Nazeer – Krishna","Vijayawada – 1 November 1956 – Chandrababu Naidu – Godavari","Amaravati – 2 June 2014 – Chandrababu Naidu – Krishna"], answer:0},
+
+{q:"Andhra Pradesh has three National Parks mentioned in the study material. Which of the following is the correct set of National Parks?", options:["Sri Venkateswara, Papikonda and Rajiv Gandhi National Parks","Sri Venkateswara, Kolleru and Rajiv Gandhi National Parks","Papikonda, Nagarjunsagar-Srisailam and Rajiv Gandhi National Parks","Sri Venkateswara, Papikonda and Kambalakonda National Parks"], answer:0},
+
+{q:"The Nagarjunsagar–Srisailam Tiger Reserve is an important protected area associated with Andhra Pradesh. Which statement correctly describes it according to the given study material?", options:["It is a Ramsar Site located around Kolleru Lake","It is a Tiger Reserve shared with Telangana","It is one of the three National Parks of Andhra Pradesh","It is a Wildlife Sanctuary located near Pulicat Lake"], answer:1},
+
+{q:"Kolleru Lake has special significance in the Andhra Pradesh static information. Which of the following correctly identifies its status?", options:["National Park and Tiger Reserve","Wildlife Sanctuary and Tiger Reserve","Ramsar Site","Only a Bird Sanctuary without Ramsar recognition"], answer:2},
+
+{q:"During the Andhra Pradesh memory journey, the birds are shown travelling through a sequence of important bird locations. Which option correctly gives the sequence mentioned in the study material?", options:["Atapaka → Kolleru → Manjira → Nelapattu → Pulicat Lake → Uppalapadu → Kondakarla Ava → Sri Penusila Narasimha","Kolleru → Atapaka → Nelapattu → Manjira → Pulicat Lake → Kondakarla Ava → Uppalapadu → Sri Penusila Narasimha","Atapaka → Manjira → Kolleru → Pulicat Lake → Nelapattu → Uppalapadu → Kondakarla Ava → Sri Penusila Narasimha","Atapaka → Kolleru → Nelapattu → Manjira → Uppalapadu → Pulicat Lake → Kondakarla Ava → Sri Penusila Narasimha"], answer:0},
+
+{q:"Which of the following is correctly matched with an Andhra Pradesh Wildlife Sanctuary from the complete list provided in the study material?", options:["Kambalakonda Wildlife Sanctuary","Namdapha Wildlife Sanctuary","Sessa Orchid Wildlife Sanctuary","Mehao Wildlife Sanctuary"], answer:0},
+
+{q:"The Andhra Pradesh study material contains several protected areas that can easily be confused with one another. Which combination correctly matches the category with the protected area?", options:["Ramsar Site – Kolleru Lake","Tiger Reserve – Papikonda National Park","National Park – Coringa Wildlife Sanctuary","Bird Sanctuary – Nagarjunsagar-Srisailam Tiger Reserve"], answer:0},
+
+{q:"Which Andhra Pradesh protected area is specifically associated with elephants in the memory story, where the journey describes meeting elephants before continuing towards other wildlife areas?", options:["Koundinya Wildlife Sanctuary","Rollapadu Wildlife Sanctuary","Coringa Wildlife Sanctuary","Sri Penusila Narasimha Wildlife Sanctuary"], answer:0},
+
+{q:"According to the Andhra Pradesh quick revision, which protected area is associated with the flamingos mentioned in the memory journey?", options:["Kambalakonda Wildlife Sanctuary","Coringa Wildlife Sanctuary","Koundinya Wildlife Sanctuary","Gundla Brahmeswaram Wildlife Sanctuary"], answer:1},
+
+{q:"Which statement correctly distinguishes the two states shown in the provided study material with respect to their National Parks and Tiger Reserves?", options:["Andhra Pradesh has Sri Venkateswara, Papikonda and Rajiv Gandhi National Parks, while Arunachal Pradesh has Mouling and Namdapha National Parks","Andhra Pradesh has Mouling and Namdapha National Parks, while Arunachal Pradesh has Sri Venkateswara and Papikonda National Parks","Both Andhra Pradesh and Arunachal Pradesh have Kolleru Lake as a Ramsar Site","Both states have the same two National Parks and the same Tiger Reserves"], answer:0},
+
+{q:"According to the Arunachal Pradesh identity card, which combination correctly identifies the capital, formation date, Chief Minister (CM) and Governor?", options:["Itanagar – 20 February 1987 – Pema Khandu – Lt. Gen. K. T. Parnaik","Itanagar – 20 February 1987 – Pema Khandu – Abdul Nazeer","Itanagar – 1 November 1956 – Pema Khandu – Lt. Gen. K. T. Parnaik","Itanagar – 20 February 1987 – Chandrababu Naidu – Lt. Gen. K. T. Parnaik"], answer:0},
+
+{q:"The Governor mentioned in the Arunachal Pradesh study material is Lt. Gen. K. T. Parnaik. Which additional identification is given for him?", options:["Kailash Nath Sharma","Kailashya Trivram Parnaik","Kailash Yadav Parnaik","Keshav Trivikram Parnaik"], answer:1},
+
+{q:"Arunachal Pradesh is described in the study material as the ‘Land of the Rising Sun’. Which of the following correctly identifies its National Parks?", options:["Mouling National Park and Namdapha National Park","Namdapha National Park and Pakke National Park","Mouling National Park and Pakke National Park","Itanagar National Park and Namdapha National Park"], answer:0},
+
+{q:"Namdapha has a special place in the Arunachal Pradesh revision material because it appears in two different protected-area categories. Which option correctly explains this?", options:["Namdapha is both a National Park and a Tiger Reserve","Namdapha is both a Ramsar Site and a Bird Sanctuary","Namdapha is both a Wildlife Sanctuary and a National Park only","Namdapha is both a Tiger Reserve and a Ramsar Site"], answer:0},
+
+{q:"Which of the following correctly identifies the two Tiger Reserves of Arunachal Pradesh mentioned in the study material?", options:["Namdapha Tiger Reserve and Pakke (Pakhui) Tiger Reserve","Mouling Tiger Reserve and Namdapha Tiger Reserve","Pakke Tiger Reserve and Sessa Orchid Tiger Reserve","Namdapha Tiger Reserve and Talley Valley Tiger Reserve"], answer:0},
+
+{q:"The Arunachal Pradesh study material specifically warns about a common confusion involving Pakke. Which statement is correct?", options:["Pakke is a National Park and not a Tiger Reserve","Pakke is a Tiger Reserve and not a National Park","Pakke is both a Ramsar Site and a Tiger Reserve","Pakke is a Bird Sanctuary and a National Park"], answer:1},
+
+{q:"According to the complete Wildlife Sanctuaries list for Arunachal Pradesh, how many Wildlife Sanctuaries are mentioned?", options:["6","7","8","9"], answer:2},
+
+{q:"Which of the following is correctly matched with a Wildlife Sanctuary of Arunachal Pradesh as given in the study material?", options:["Eaglenest Wildlife Sanctuary","Kolleru Wildlife Sanctuary","Koundinya Wildlife Sanctuary","Rollapadu Wildlife Sanctuary"], answer:0},
+
+{q:"The Arunachal Pradesh study material contains no Ramsar Site and no Bird Sanctuary in the corresponding quick-revision sections. Which option correctly represents this information?", options:["Ramsar Sites – 1; Bird Sanctuaries – 2","Ramsar Sites – None; Bird Sanctuaries – None","Ramsar Sites – 2; Bird Sanctuaries – None","Ramsar Sites – None; Bird Sanctuaries – 1"], answer:1},
+
+{q:"According to the Arunachal Pradesh high-yield revision section, which is identified as the highest peak of the state?", options:["Kangto – 7,060 m","Kangchenjunga – 8,586 m","Nanda Devi – 7,816 m","Namcha Barwa – 7,782 m"], answer:0},
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
